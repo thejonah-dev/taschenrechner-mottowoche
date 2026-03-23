@@ -375,18 +375,11 @@ function stop67Sound() {
 // ─── 67 MODE: CONTROLLER ───────────────────────
 function trigger67() {
   if (!bucket) return;
-  const ts = Date.now();
-  mode67Active = true;
+  const ts        = Date.now();
+  const startAt   = ts + 2000; // beide iPads starten in genau 2 Sek
+  mode67Active    = true;
   document.getElementById('btn-67').classList.add('firing');
-
-  // Push to Firebase: mode67 = timestamp (so iPads can detect it's NEW each press)
-  pushRaw({ mode67: ts, mode67stop: false });
-
-  // Auto-stop after 10s from controller side too
-  clearTimeout(mode67AutoStopTimer);
-  mode67AutoStopTimer = setTimeout(() => {
-    hardStop67();
-  }, 18000);
+  pushData({ mode67: ts, mode67stop: false, mode67startAt: startAt });
 }
 
 function hardStop67() {
@@ -400,23 +393,22 @@ function hardStop67() {
 let local67Timestamp = 0;
 let local67Stopped = false;
 let local67AutoStop = null;
+let local67StartAt   = 0; // ← NEU
 
-function handle67StateChange(ts, stopped) {
+function handle67StateChange(ts, stopped, startAt) {
   if (stopped || ts === 0) {
-    // Stop command
     if (mode67Active) stopMode67Display();
     return;
   }
   if (ts !== local67Timestamp) {
-    // New trigger
     local67Timestamp = ts;
-    local67Stopped = false;
+    local67StartAt   = startAt || (Date.now() + 500); // ← NEU
     startMode67Display();
   }
 }
 
 function startMode67Display() {
-  if (mode67Active) stopMode67Display(); // reset if already running
+  if (mode67Active) stopMode67Display();
   mode67Active = true;
 
   // Hide normal content
@@ -474,13 +466,15 @@ function startMode67Display() {
   }, 40);
 
   // Play sound
-  play67Sound();
-
-  // Auto-stop on display side after 10.5s (slight buffer)
-  clearTimeout(local67AutoStop);
-  local67AutoStop = setTimeout(() => {
-    stopMode67Display();
-  }, 18500);
+    const snd = document.getElementById('snd-67');
+  if (snd) {
+    snd.onended     = () => stopMode67Display();
+    snd.currentTime = 0;
+    const delay = Math.max(0, local67StartAt - Date.now());
+    setTimeout(() => {
+      if (mode67Active) snd.play().catch(() => {});
+    }, delay);
+  }
 }
 
 function stopMode67Display() {
@@ -658,9 +652,7 @@ async function pollDisplay() {
       isCustomText = data.custom || false;
 
       // ── 67 MODE check ──
-      const ts67   = data.mode67 || 0;
-      const stop67 = data.mode67stop || false;
-      handle67StateChange(ts67, stop67);
+     handle67StateChange(data.mode67 || 0, data.mode67stop || false, data.mode67startAt || 0);
 
       // Normal display update (skip if 67 mode is running)
       if (!mode67Active) {
