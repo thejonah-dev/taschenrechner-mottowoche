@@ -96,33 +96,58 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 .lcd-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 10px; letter-spacing: 3px; color: var(--green-dim); }
 
 /* EXPR screen */
+/* EXPR screen (iPad 1) */
 #disp-expr {
   font-family: 'Orbitron', monospace;
   font-weight: 700;
-  font-size: clamp(48px, 11vw, 120px);
+  font-size: clamp(48px, 11vw, 100px); /* Maximale Größe etwas begrenzt für Stabilität */
   color: var(--green);
   text-align: right;
-  text-shadow: 0 0 20px var(--green), 0 0 50px rgba(57,255,90,0.4), 0 0 100px rgba(57,255,90,0.15);
+  text-shadow: 0 0 20px var(--green);
   letter-spacing: 3px;
-  min-height: 1.15em;
-  word-break: break-all;
-  line-height: 1.05;
-  transition: opacity 0.08s;
+  
+  /* FESTE ABMESSUNGEN - ÄNDERT SICH NIE */
+  height: 1.2em; 
+  line-height: 1.2em;
+  display: block;
+  width: 100%;
+  overflow: hidden;    /* Schneidet Text ab, statt Box zu vergrößern */
+  white-space: nowrap; /* Verhindert Zeilenumbruch nach unten */
+  word-break: keep-all;
 }
 
-/* RESULT screen — amber color */
+/* RESULT screen (iPad 2) */
 #disp-result {
   font-family: 'Orbitron', monospace;
   font-weight: 900;
-  font-size: clamp(64px, 16vw, 190px);
+  font-size: clamp(48px, 11vw, 100px); /* EXAKT GLEICHE GRÖSSE WIE OBEN */
   color: var(--amber);
-  text-align: center;
-  text-shadow: 0 0 24px var(--amber), 0 0 60px rgba(255,184,48,0.4), 0 0 110px rgba(255,184,48,0.15);
+  text-align: right; /* Auch rechtsbündig wie die Eingabe für gleiche Optik */
+  text-shadow: 0 0 24px var(--amber);
   letter-spacing: 4px;
-  min-height: 1.1em;
-  word-break: break-all;
-  line-height: 1.0;
-  transition: opacity 0.08s;
+
+  /* EXAKT GLEICHE FESTE ABMESSUNGEN */
+  height: 1.2em;
+  line-height: 1.2em;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+/* Damit die Box drumherum immer gleich groß bleibt */
+.lcd-outer {
+  width: 95vw;
+  height: 250px; /* Hier eine feste Pixel-Höhe passend zu deinem Ausschnitt wählen! */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Zentriert den Inhalt vertikal im Ausschnitt */
+  background: var(--display-bg);
+  border: 3px solid #0d2a14;
+  border-radius: 10px;
+  padding: 20px;
+  box-sizing: border-box;
 }
 /* equals prefix */
 .eq-prefix { color: var(--green-dim); font-size: 0.55em; vertical-align: middle; margin-right: 8px; }
