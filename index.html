@@ -26,7 +26,6 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 
 .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; transition: opacity 0.3s; }
 .screen.hidden { opacity: 0; pointer-events: none; }
-  /* Verhindert, dass EINGABE und ERGEBNIS gleichzeitig angezeigt werden */
 #disp-expr.hidden, #disp-result.hidden { display: none !important; }
 
 /* ─── SETUP ─── */
@@ -54,7 +53,6 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 .status-dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); }
 .share-pill { background: none; border: 1px solid var(--btn-border); color: var(--green-dim); font-family: 'Orbitron', monospace; font-size: 8px; letter-spacing: 2px; padding: 4px 10px; border-radius: 20px; cursor: pointer; }
 
-/* Two mini displays on controller */
 .ctrl-dual { display: flex; gap: 6px; width: 100%; margin-bottom: 8px; }
 .ctrl-disp-wrap { flex: 1; background: var(--display-bg); border: 2px solid var(--green-dim); border-radius: 7px; padding: 6px 10px; }
 .ctrl-disp-label { font-size: 8px; letter-spacing: 3px; color: var(--green-dim); margin-bottom: 2px; }
@@ -67,6 +65,52 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 .c-btn.op { color: var(--blue-op); }
 .c-btn.fn { color: var(--red-fn); }
 .c-btn.eq { background: var(--green-dim); color: var(--green); box-shadow: 0 0 10px var(--green-glow); }
+
+/* ── 67 MODE row ── */
+.mode67-row { display: flex; gap: 6px; width: 100%; margin-bottom: 8px; }
+
+.btn-67 {
+  flex: 2;
+  background: linear-gradient(135deg, #1a0a00, #3d1500);
+  border: 2px solid var(--amber);
+  color: var(--amber);
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(15px, 5vw, 22px);
+  font-weight: 900;
+  letter-spacing: 3px;
+  padding: 14px 0;
+  border-radius: 7px;
+  cursor: pointer;
+  text-shadow: 0 0 10px var(--amber);
+  box-shadow: 0 0 14px rgba(255,184,48,0.25);
+  transition: all 0.08s;
+  user-select: none;
+}
+.btn-67:active { transform: scale(0.93); box-shadow: 0 0 28px rgba(255,184,48,0.6); }
+.btn-67.firing {
+  animation: amber-pulse 0.4s ease-in-out infinite alternate;
+}
+@keyframes amber-pulse {
+  from { box-shadow: 0 0 14px rgba(255,184,48,0.3); border-color: var(--amber); }
+  to   { box-shadow: 0 0 40px rgba(255,184,48,0.9); border-color: #ffe080; }
+}
+
+.btn-hardstop {
+  flex: 1;
+  background: linear-gradient(135deg, #1a0000, #3d0000);
+  border: 2px solid var(--red-fn);
+  color: var(--red-fn);
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 14px 6px;
+  border-radius: 7px;
+  cursor: pointer;
+  text-shadow: 0 0 8px rgba(255,107,107,0.5);
+  transition: all 0.08s;
+  user-select: none;
+}
+.btn-hardstop:active { transform: scale(0.93); background: #3d0000; }
 
 .custom-row { display: flex; gap: 6px; width: 100%; }
 .custom-in { flex: 1; background: var(--btn); border: 1px solid var(--btn-border); color: var(--green); font-family: 'Share Tech Mono', monospace; font-size: 15px; padding: 11px 10px; border-radius: 7px; outline: none; }
@@ -84,20 +128,28 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 .share-tabs { display: flex; gap: 8px; width: 100%; max-width: 320px; }
 .share-tab { flex: 1; background: var(--panel); border: 1px solid var(--btn-border); border-radius: 10px; padding: 14px 8px; text-align: center; }
 .share-tab-label { font-size: 8px; letter-spacing: 3px; color: var(--green-dim); margin-bottom: 6px; }
-.share-tab-title { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--green); margin-bottom: 8px; }
 
 /* ─── DISPLAY ─── */
 #display { background: var(--bg); }
 
-/* EXPRESSION display (iPad 1) — left-aligned, shows what's being typed */
-.lcd-outer { width: 95%; max-width: 900px; background: var(--display-bg); border: 3px solid #0d2a14; border-radius: 10px; padding: 24px 36px 28px; position: relative; box-shadow: 0 0 60px rgba(57,255,90,0.1), inset 0 0 30px rgba(0,0,0,0.6); }
+.lcd-outer {
+  width: 95vw;
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--display-bg);
+  border: 3px solid #0d2a14;
+  border-radius: 10px;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+  box-shadow: 0 0 60px rgba(57,255,90,0.1), inset 0 0 30px rgba(0,0,0,0.6);
+}
 .lcd-outer::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px); pointer-events: none; border-radius: 8px; }
 .lcd-sub { font-size: 10px; letter-spacing: 4px; color: var(--green-dim); margin-bottom: 16px; font-family: 'Share Tech Mono', monospace; }
 .lcd-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 10px; letter-spacing: 3px; color: var(--green-dim); }
 
-/* EXPR screen */
-/* EXPR screen (iPad 1) */
-/* EINGABE (iPad 1) */
 #disp-expr {
   font-family: 'Orbitron', monospace;
   font-weight: 700;
@@ -105,21 +157,14 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
   text-align: right;
   text-shadow: 0 0 20px var(--green);
   letter-spacing: 2px;
-  
-  /* AUTOMATISCHE SCHRIFTGRÖSSE */
-  font-size: 80px; /* Startgröße */
+  font-size: clamp(20px, 8vw, 90px);
   display: block;
   width: 100%;
   height: 1.2em;
   line-height: 1.2em;
   white-space: nowrap;
   overflow: hidden;
-  
-  /* Der Trick: Wenn der Text zu lang ist, wird er gestaucht oder wir nutzen Viewport-Units */
-  font-size: clamp(20px, 8vw, 90px); 
 }
-
-/* ERGEBNIS (iPad 2) */
 #disp-result {
   font-family: 'Orbitron', monospace;
   font-weight: 900;
@@ -128,8 +173,6 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
   text-shadow: 0 0 24px var(--amber);
   letter-spacing: 4px;
   padding-left: 10px;
-
-  /* AUTOMATISCHE SCHRIFTGRÖSSE */
   font-size: clamp(20px, 8vw, 90px);
   display: block;
   width: 100%;
@@ -139,22 +182,7 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
   overflow: hidden;
 }
 
-/* Damit die Box drumherum immer gleich groß bleibt */
-.lcd-outer {
-  width: 95vw;
-  height: 250px; /* Hier eine feste Pixel-Höhe passend zu deinem Ausschnitt wählen! */
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* Zentriert den Inhalt vertikal im Ausschnitt */
-  background: var(--display-bg);
-  border: 3px solid #0d2a14;
-  border-radius: 10px;
-  padding: 20px;
-  box-sizing: border-box;
-}
-/* equals prefix */
 .eq-prefix { color: var(--green-dim); font-size: 0.55em; vertical-align: middle; margin-right: 8px; }
-
 .brand-row { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 8px; color: var(--green-dim); text-transform: uppercase; margin-bottom: 12px; }
 
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
@@ -170,7 +198,7 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 <audio id="snd-bing" preload="auto">
   <source src="freesound_community-piglevelwin2mp3-14800.mp3" type="audio/mpeg">
 </audio>
-  
+
 <!-- ══════════════ SETUP ══════════════ -->
 <div class="screen" id="setup">
   <div class="logo">📟 TASCHENRECHNER KOSTÜM · v2</div>
@@ -214,6 +242,12 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
       <div class="ctrl-disp-label">iPAD 2 · ERGEBNIS</div>
       <div class="ctrl-disp-val result" id="ctrl-result">—</div>
     </div>
+  </div>
+
+  <!-- 67 MODE + HARD STOP -->
+  <div class="mode67-row">
+    <button class="btn-67" id="btn-67" onclick="trigger67()">6️⃣7️⃣ MODE</button>
+    <button class="btn-hardstop" id="btn-hardstop" onclick="hardStop67()">⛔ STOP</button>
   </div>
 
   <div class="calc-grid">
@@ -268,14 +302,14 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 <!-- ══════════════ DISPLAY ══════════════ -->
 <div class="screen hidden" id="display">
   <div class="brand-row" id="disp-brand">CASIO · fx-9750GIII</div>
-   <div class="lcd-outer">
-    <canvas id="matrix-canvas" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; transition:opacity 0.5s; pointer-events:none;"></canvas>
-  
+  <div class="lcd-outer">
+    <!-- Normal matrix (idle) canvas -->
+    <canvas id="matrix-canvas" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; transition:opacity 0.5s; pointer-events:none; border-radius:8px;"></canvas>
+    <!-- 67 mode canvas (on top) -->
+    <canvas id="matrix-67-canvas" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; transition:opacity 0.3s; pointer-events:none; border-radius:8px; z-index:10;"></canvas>
+
     <div class="lcd-sub" id="lcd-sub">▶ ANS &nbsp; RAD &nbsp; CMPLX</div>
-  
-    <!-- iPad 1: expression -->
     <div id="disp-expr" class="hidden">0<span class="cursor-blink">_</span></div>
-    <!-- iPad 2: result -->
     <div id="disp-result" class="hidden"><span class="eq-prefix">=</span><span id="result-val">—</span></div>
     <div class="lcd-footer">
       <span id="disp-footer-label">MATHE LK 2026</span>
@@ -289,11 +323,10 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 
 
 <script>
-// HIER DEINEN LINK EINFÜGEN (muss mit .json enden!)
 const DB_URL = "https://taschenrechner-mottowoche-default-rtdb.europe-west1.firebasedatabase.app/";
 
 let bucket = null;
-let dispMode = 0; // 1 = expr, 2 = result
+let dispMode = 0;
 let pickMode = 1;
 let expr = '0';
 let isCustomText = false;
@@ -305,6 +338,228 @@ let isBusy = false;
 let needsUpdate = false;
 let idleTimer = null;
 let idleActive = false;
+
+// 67 mode state
+let mode67Active = false;
+let mode67AutoStopTimer = null;
+let mode67Interval = null;
+let audioCtx = null;
+let mode67AudioNodes = [];
+let last67Timestamp = 0;
+
+// ─── AUDIO CONTEXT (Web Audio API) ────────────
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// Generates the 10-second 67 alarm sound
+function play67Sound() {
+  const ctx = getAudioCtx();
+  stop67Sound(); // clean up any previous
+
+  const duration = 10;
+  const now = ctx.currentTime;
+
+  // Layer 1: low pulsing drone
+  const osc1 = ctx.createOscillator();
+  const gain1 = ctx.createGain();
+  osc1.type = 'sawtooth';
+  osc1.frequency.setValueAtTime(67, now);
+  osc1.frequency.linearRampToValueAtTime(134, now + 5);
+  osc1.frequency.linearRampToValueAtTime(67, now + 10);
+  gain1.gain.setValueAtTime(0, now);
+  gain1.gain.linearRampToValueAtTime(0.18, now + 0.3);
+  gain1.gain.linearRampToValueAtTime(0.18, now + duration - 0.5);
+  gain1.gain.linearRampToValueAtTime(0, now + duration);
+  osc1.connect(gain1);
+  gain1.connect(ctx.destination);
+  osc1.start(now);
+  osc1.stop(now + duration);
+
+  // Layer 2: pulsing beep at 670 Hz (6 7 = 670!)
+  for (let i = 0; i < 20; i++) {
+    const t = now + i * 0.5;
+    if (t > now + duration) break;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'square';
+    o.frequency.value = 670;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.12, t + 0.04);
+    g.gain.linearRampToValueAtTime(0, t + 0.18);
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.start(t);
+    o.stop(t + 0.2);
+    mode67AudioNodes.push(o, g);
+  }
+
+  // Layer 3: rising alarm sweep every 2 seconds
+  for (let i = 0; i < 5; i++) {
+    const t = now + i * 2;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(300, t);
+    o.frequency.linearRampToValueAtTime(1200, t + 1.5);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.1, t + 0.2);
+    g.gain.linearRampToValueAtTime(0, t + 1.5);
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.start(t);
+    o.stop(t + 1.5);
+    mode67AudioNodes.push(o, g);
+  }
+
+  mode67AudioNodes.push(osc1, gain1);
+}
+
+function stop67Sound() {
+  const ctx = getAudioCtx();
+  mode67AudioNodes.forEach(n => {
+    try { n.stop(); } catch(_) {}
+    try { n.disconnect(); } catch(_) {}
+  });
+  mode67AudioNodes = [];
+}
+
+// ─── 67 MODE: CONTROLLER ───────────────────────
+function trigger67() {
+  if (!bucket) return;
+  const ts = Date.now();
+  mode67Active = true;
+  document.getElementById('btn-67').classList.add('firing');
+
+  // Push to Firebase: mode67 = timestamp (so iPads can detect it's NEW each press)
+  pushRaw({ mode67: ts, mode67stop: false });
+
+  // Auto-stop after 10s from controller side too
+  clearTimeout(mode67AutoStopTimer);
+  mode67AutoStopTimer = setTimeout(() => {
+    hardStop67();
+  }, 10000);
+}
+
+function hardStop67() {
+  clearTimeout(mode67AutoStopTimer);
+  mode67Active = false;
+  document.getElementById('btn-67').classList.remove('firing');
+  if (bucket) pushRaw({ mode67: 0, mode67stop: true });
+}
+
+// ─── 67 MODE: DISPLAY ─────────────────────────
+let local67Timestamp = 0;
+let local67Stopped = false;
+let local67AutoStop = null;
+
+function handle67StateChange(ts, stopped) {
+  if (stopped || ts === 0) {
+    // Stop command
+    if (mode67Active) stopMode67Display();
+    return;
+  }
+  if (ts !== local67Timestamp) {
+    // New trigger
+    local67Timestamp = ts;
+    local67Stopped = false;
+    startMode67Display();
+  }
+}
+
+function startMode67Display() {
+  if (mode67Active) stopMode67Display(); // reset if already running
+  mode67Active = true;
+
+  // Hide normal content
+  const exprEl = document.getElementById('disp-expr');
+  const resEl  = document.getElementById('disp-result');
+  const subEl  = document.getElementById('lcd-sub');
+  if (exprEl) exprEl.style.opacity = '0';
+  if (resEl)  resEl.style.opacity  = '0';
+  if (subEl)  subEl.style.opacity  = '0';
+  stopMatrix(); // stop idle matrix
+
+  // Start 67 canvas
+  const canvas = document.getElementById('matrix-67-canvas');
+  canvas.width  = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  canvas.style.opacity = '1';
+
+  const ctx67 = canvas.getContext('2d');
+  const tokens = ['6','7','67','6','7','67','6','7']; // weighted towards 6 and 7
+  const fontSize = 22;
+  const cols = Math.floor(canvas.width / fontSize);
+  const drops = Array.from({length: cols}, () => Math.random() * -50);
+
+  // Color matches the display mode
+  const color = dispMode === 2 ? '#ffb830' : '#39ff5a';
+  const shadowColor = dispMode === 2 ? 'rgba(255,184,48,0.8)' : 'rgba(57,255,90,0.8)';
+
+  mode67Interval = setInterval(() => {
+    if (!mode67Active) return;
+
+    ctx67.fillStyle = dispMode === 2
+      ? 'rgba(16, 10, 0, 0.15)'
+      : 'rgba(6, 16, 6, 0.15)';
+    ctx67.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx67.font = `bold ${fontSize}px 'Orbitron', monospace`;
+    ctx67.shadowBlur = 8;
+    ctx67.shadowColor = shadowColor;
+
+    for (let i = 0; i < drops.length; i++) {
+      const tok = tokens[Math.floor(Math.random() * tokens.length)];
+      // Brighter lead character
+      ctx67.fillStyle = '#ffffff';
+      ctx67.fillText(tok, i * fontSize, drops[i] * fontSize);
+
+      // Normal color for rest
+      ctx67.fillStyle = color;
+
+      drops[i] += 0.6;
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.96) {
+        drops[i] = -5;
+      }
+    }
+    ctx67.shadowBlur = 0;
+  }, 40);
+
+  // Play sound
+  play67Sound();
+
+  // Auto-stop on display side after 10.5s (slight buffer)
+  clearTimeout(local67AutoStop);
+  local67AutoStop = setTimeout(() => {
+    stopMode67Display();
+  }, 10500);
+}
+
+function stopMode67Display() {
+  mode67Active = false;
+  clearTimeout(local67AutoStop);
+  clearInterval(mode67Interval);
+  stop67Sound();
+
+  const canvas = document.getElementById('matrix-67-canvas');
+  canvas.style.opacity = '0';
+  setTimeout(() => {
+    const ctx67 = canvas.getContext('2d');
+    ctx67.clearRect(0, 0, canvas.width, canvas.height);
+  }, 350);
+
+  // Restore normal content
+  const exprEl = document.getElementById('disp-expr');
+  const resEl  = document.getElementById('disp-result');
+  const subEl  = document.getElementById('lcd-sub');
+  if (exprEl) exprEl.style.opacity = '1';
+  if (resEl)  resEl.style.opacity  = '1';
+  if (subEl)  subEl.style.opacity  = '1';
+
+  resetIdle();
+}
 
 // ─── SETUP ────────────────────────────────────
 function pickDisp(n) {
@@ -318,12 +573,8 @@ async function createRoom() {
   const loading = document.getElementById('setup-loading');
   btn.disabled = true;
   loading.textContent = 'VERBINDE...';
-  
-  // Erzeugt einen zufälligen Raum-Code wie R1234
   bucket = 'R' + Math.floor(1000 + Math.random() * 9000);
-  
   try {
-    // Initialen Wert in Firebase speichern
     await push('0', '—');
     startController();
   } catch (err) {
@@ -339,23 +590,21 @@ function joinDisplay() {
   bucket = code;
   dispMode = pickMode;
 
-  // --- AUDIO UNLOCK START ---
-  // Wir spielen die Sounds kurz lautlos an, damit Safari sie später erlaubt
   const s1 = document.getElementById('snd-click');
   const s2 = document.getElementById('snd-bing');
-  if(s1) { s1.play().then(() => { s1.pause(); s1.currentTime = 0; }).catch(e => console.log(e)); }
-  if(s2) { s2.play().then(() => { s2.pause(); s2.currentTime = 0; }).catch(e => console.log(e)); }
-  // --- AUDIO UNLOCK ENDE ---
+  if(s1) s1.play().then(() => { s1.pause(); s1.currentTime = 0; }).catch(()=>{});
+  if(s2) s2.play().then(() => { s2.pause(); s2.currentTime = 0; }).catch(()=>{});
 
-  // VOLLBILD STARTEN
+  // Unlock Web Audio on user gesture
+  getAudioCtx();
+
   const el = document.documentElement;
   const rfs = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
-  if (rfs) {
-    rfs.call(el).catch(err => console.log("Fullscreen blocked: ", err));
-  }
+  if (rfs) rfs.call(el).catch(()=>{});
 
   startDisplay();
 }
+
 // ─── CONTROLLER ───────────────────────────────
 function startController() {
   show('ctrl');
@@ -364,16 +613,7 @@ function startController() {
 
 function p(btn) {
   isCustomText = false;
-  // Sound nur abspielen, wenn NICHT 'C' gedrückt wird
-  if (btn !== 'C') {
-    // Da wir hier auf dem Controller sind, senden wir den Befehl an Firebase.
-    // Der Sound wird dann auf dem iPad (Display) ausgelöst, sobald dort die Daten ankommen.
-  }
-
-  if (btn === 'C') { 
-    expr = '0'; 
-    result = '—'; 
-  }
+  if (btn === 'C') { expr = '0'; result = '—'; }
   else if (btn === '⌫') { expr = expr.length > 1 ? expr.slice(0,-1) : '0'; }
   else if (btn === '=') {
     try {
@@ -384,11 +624,11 @@ function p(btn) {
   } else if (btn === '±') {
     expr = expr.startsWith('-') ? expr.slice(1) : (expr!=='0' ? '-'+expr : '0');
   } else if (btn === '%') {
-    try { 
-        let e = expr.replace(/÷/g,'/').replace(/×/g,'*').replace(/−/g,'-').replace(/,/g,'.');
-        let r = Function('"use strict";return (' + e + ')')() / 100;
-        expr = String(r).replace('.',',');
-        p('=');
+    try {
+      let e = expr.replace(/÷/g,'/').replace(/×/g,'*').replace(/−/g,'-').replace(/,/g,'.');
+      let r = Function('"use strict";return (' + e + ')')() / 100;
+      expr = String(r).replace('.',',');
+      p('=');
     } catch { result = 'ERROR'; }
   } else {
     if (expr === '0' && /\d/.test(btn)) expr = btn;
@@ -398,58 +638,49 @@ function p(btn) {
   document.getElementById('ctrl-result').textContent = result;
   push(expr, result);
 }
+
 function sendText() {
   const t = document.getElementById('custom-in').value.trim();
   if (!t) return;
-
-  isCustomText = true; // SOUNDS DEAKTIVIEREN
-
+  isCustomText = true;
   let mid = Math.floor(t.length / 2);
   let splitIndex = t.indexOf(' ', mid);
   if (splitIndex === -1) splitIndex = mid;
-
   let part1 = t.substring(0, splitIndex).trim();
   let part2 = t.substring(splitIndex).trim();
-
-  expr = part1;
-  result = part2;
-
+  expr = part1; result = part2;
   document.getElementById('ctrl-expr').textContent = part1;
   document.getElementById('ctrl-result').textContent = part2;
   document.getElementById('custom-in').value = '';
-
   push(part1, part2);
-  
-  // Nach kurzem Delay wieder für normales Tippen freigeben
   setTimeout(() => { isCustomText = false; }, 1000);
 }
 
 async function push(e, r) {
-  if (isBusy) {
-    needsUpdate = true;
-    return;
-  }
+  if (isBusy) { needsUpdate = true; return; }
   isBusy = true;
   needsUpdate = false;
-
   try {
-    // Hier wird jetzt auch der Status "custom" mitgesendet!
-    await fetch(`${DB_URL}${bucket}.json`, { 
-      method: 'PATCH', 
-      body: JSON.stringify({ 
-        expr: e, 
-        result: r, 
-        custom: isCustomText // Das iPad erfährt so, ob es ein Custom-Text ist
-      }) 
+    await fetch(`${DB_URL}${bucket}.json`, {
+      method: 'PATCH',
+      body: JSON.stringify({ expr: e, result: r, custom: isCustomText })
     });
     setDot('live');
-  } catch (err) { 
-    setDot('err'); 
-    console.error("Firebase Error:", err);
-  } finally {
+  } catch { setDot('err'); }
+  finally {
     isBusy = false;
     if (needsUpdate) push(expr, result);
   }
+}
+
+async function pushRaw(obj) {
+  try {
+    await fetch(`${DB_URL}${bucket}.json`, {
+      method: 'PATCH',
+      body: JSON.stringify(obj)
+    });
+    setDot('live');
+  } catch { setDot('err'); }
 }
 
 function setDot(s) {
@@ -468,9 +699,8 @@ function startDisplay() {
   document.getElementById('disp-brand').textContent = isResult
     ? 'CASIO · fx-9750GIII · ERGEBNIS'
     : 'CASIO · fx-9750GIII · EINGABE';
-  
-  pollDisplay(); 
-  resetIdle(); // <--- DAS MUSS HIER STEHEN!
+  pollDisplay();
+  resetIdle();
 }
 
 async function pollDisplay() {
@@ -478,162 +708,105 @@ async function pollDisplay() {
   try {
     const res = await fetch(`${DB_URL}${bucket}.json`);
     const data = await res.json();
-    
     if (data) {
-      // WICHTIG: Das iPad übernimmt hier die Info vom Handy
-      isCustomText = data.custom || false; 
-      
-      const val = dispMode === 1 ? data.expr : data.result;
-      const last = dispMode === 1 ? lastExpr : lastResult;
-      
-      if (val !== undefined && val !== last) {
-        if (dispMode === 1) { lastExpr = val; updateExprDisplay(val); }
-        else { lastResult = val; updateResultDisplay(val); }
-        document.getElementById('disp-status').textContent = 'LIVE ●';
-        document.getElementById('disp-dot').style.background = 'var(--green)';
+      isCustomText = data.custom || false;
+
+      // ── 67 MODE check ──
+      const ts67   = data.mode67 || 0;
+      const stop67 = data.mode67stop || false;
+      handle67StateChange(ts67, stop67);
+
+      // Normal display update (skip if 67 mode is running)
+      if (!mode67Active) {
+        const val  = dispMode === 1 ? data.expr : data.result;
+        const last = dispMode === 1 ? lastExpr : lastResult;
+        if (val !== undefined && val !== last) {
+          if (dispMode === 1) { lastExpr = val; updateExprDisplay(val); }
+          else { lastResult = val; updateResultDisplay(val); }
+          document.getElementById('disp-status').textContent = 'LIVE ●';
+          document.getElementById('disp-dot').style.background = 'var(--green)';
+        }
       }
     }
-  } catch (err) {
-    // ... restlicher Catch-Block
+  } catch {
     document.getElementById('disp-status').textContent = 'OFFLINE ○';
     document.getElementById('disp-dot').style.background = '#ff4444';
   } finally {
-    // Wartet 500ms und fragt dann erneut ab (verhindert Race Conditions)
     pollTimer = setTimeout(pollDisplay, 500);
   }
 }
 
 let typingTimer = null;
-
 function manageTypingSound(start) {
-  const typingSound = document.getElementById('snd-click');
-  if (!typingSound) return;
-
+  const s = document.getElementById('snd-click');
+  if (!s) return;
   if (start) {
-    // Wenn der Wert "0" ist (nach C), Sound gar nicht erst starten
-    if (lastExpr === '0') {
-        typingSound.pause();
-        typingSound.currentTime = 0;
-        return;
-    }
-
-    if (typingSound.paused) {
-      typingSound.play().catch(() => {});
-    }
-
-    // Timer: Stoppt den Sound nach 1.5 Sek Inaktivität
+    if (lastExpr === '0') { s.pause(); s.currentTime = 0; return; }
+    if (s.paused) s.play().catch(()=>{});
     clearTimeout(typingTimer);
     typingTimer = setTimeout(() => {
-      typingSound.pause();
-      // Wir lassen currentTime so, wie sie ist, damit er beim nächsten Mal 
-      // an einer anderen Stelle der Tastatur-Aufnahme weitermacht. 
-      // Wenn er am Ende ist, springt er durch die nächste Zeile automatisch zum Start:
-      if (typingSound.currentTime >= typingSound.duration - 0.1) {
-          typingSound.currentTime = 0;
-      }
+      s.pause();
+      if (s.currentTime >= s.duration - 0.1) s.currentTime = 0;
     }, 1500);
   }
 }
-
-// Damit der 8-Sekunden Sound von vorne anfängt, wenn er doch mal komplett durchläuft:
-document.getElementById('snd-click').onended = function() {
-    this.currentTime = 0;
-    this.pause();
-};
+document.getElementById('snd-click').onended = function() { this.currentTime = 0; this.pause(); };
 
 function playBing() {
-  const bingSound = document.getElementById('snd-bing'); // FIX
-  if (bingSound) {
-    bingSound.currentTime = 0;
-    bingSound.play().catch(() => {});
-  }
+  const s = document.getElementById('snd-bing');
+  if (s) { s.currentTime = 0; s.play().catch(()=>{}); }
 }
 
-// UPDATE EINGABE (iPad 1)
-// UPDATE EINGABE (iPad 1)
 function updateExprDisplay(v) {
-  idleActive = false;
-  resetIdle();
+  idleActive = false; resetIdle();
   const el = document.getElementById('disp-expr');
-  
-  // Nur Sound wenn: iPad 1 UND kein Custom Text UND nicht gelöscht
-  if (dispMode === 1 && !isCustomText && v !== '0') { 
-    manageTypingSound(true); 
-  } else if (v === '0' || isCustomText) {
-    const s = document.getElementById('snd-click');
-    if(s) { s.pause(); s.currentTime = 0; }
-  }
-
-  // Text anzeigen... (wie bisher)
+  if (dispMode === 1 && !isCustomText && v !== '0') manageTypingSound(true);
+  else if (v === '0' || isCustomText) { const s = document.getElementById('snd-click'); if(s){s.pause();s.currentTime=0;} }
   el.style.opacity = '1';
   el.innerHTML = v + '<span class="cursor-blink">_</span>';
 }
 
-// UPDATE ERGEBNIS (iPad 2)
 function updateResultDisplay(v) {
-  idleActive = false;
-  resetIdle();
+  idleActive = false; resetIdle();
   const el = document.getElementById('disp-result');
-  
-  // Nur Sound wenn: iPad 2 UND kein Custom Text UND nicht gelöscht
-  if (dispMode === 2 && !isCustomText && v !== '—') {
-    playBing(); 
-  }
-
-  // Text anzeigen... (wie bisher)
+  if (dispMode === 2 && !isCustomText && v !== '—') playBing();
   el.innerHTML = `<span class="eq-prefix">=</span><span id="result-val">${v}</span>`;
 }
 
+// ─── IDLE MATRIX ──────────────────────────────
 let matrixInterval = null;
 const canvas = document.getElementById('matrix-canvas');
-const ctx = canvas.getContext('2d');
+const ctx = canvas ? canvas.getContext('2d') : null;
 
 function resetIdle() {
   idleActive = false;
   clearTimeout(idleTimer);
-  stopMatrix(); 
-
-  idleTimer = setTimeout(() => {
-    startMatrix();
-  }, 20000); // 15 Sekunden Inaktivität bis Matrix startet
+  stopMatrix();
+  idleTimer = setTimeout(() => { startMatrix(); }, 20000);
 }
 
 function startMatrix() {
-  if (idleActive) return;
+  if (idleActive || mode67Active) return;
   idleActive = true;
-
-  // Sichtbarkeit umschalten
-  canvas.style.opacity = "0.6"; 
+  canvas.style.opacity = "0.6";
   document.getElementById('disp-expr').style.opacity = "0";
   document.getElementById('disp-result').style.opacity = "0";
-
-  // Canvas-Größe anpassen
   canvas.width = canvas.offsetWidth;
   canvas.height = canvas.offsetHeight;
-
-  const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$+-*/=%";
+  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$+-*/=%";
   const fontSize = 16;
   const columns = canvas.width / fontSize;
   const drops = [];
-
   for (let x = 0; x < columns; x++) drops[x] = 1;
-
   function draw() {
     if (!idleActive) return;
-    
-    ctx.fillStyle = "rgba(6, 16, 6, 0.1)";  
+    ctx.fillStyle = "rgba(6, 16, 6, 0.1)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = (dispMode === 2) ? "#ffb830" : "#39ff5a";
+    ctx.fillStyle = dispMode === 2 ? "#ffb830" : "#39ff5a";
     ctx.font = fontSize + "px 'Share Tech Mono'";
-
     for (let i = 0; i < drops.length; i++) {
-      const text = characters.charAt(Math.floor(Math.random() * characters.length));
-      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-        drops[i] = 0;
-      }
+      ctx.fillText(chars.charAt(Math.floor(Math.random() * chars.length)), i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
       drops[i]++;
     }
   }
@@ -642,28 +815,23 @@ function startMatrix() {
 
 function stopMatrix() {
   clearInterval(matrixInterval);
-  canvas.style.opacity = "0";
-  
+  if (canvas) canvas.style.opacity = "0";
   const exprEl = document.getElementById('disp-expr');
-  const resEl = document.getElementById('disp-result');
+  const resEl  = document.getElementById('disp-result');
   if (exprEl) exprEl.style.opacity = "1";
-  if (resEl) resEl.style.opacity = "1";
-  
+  if (resEl)  resEl.style.opacity  = "1";
   if(ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 // ─── SHARE ────────────────────────────────────
 function openShare() {
   const base = location.origin + location.pathname;
-  const url1 = `${base}?room=${bucket}&mode=1`;
-  const url2 = `${base}?room=${bucket}&mode=2`;
   document.getElementById('share-code1').textContent = bucket;
   document.getElementById('share-code2').textContent = bucket;
-  document.getElementById('qr1').src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&color=000000&bgcolor=ffffff&data=${encodeURIComponent(url1)}`;
-  document.getElementById('qr2').src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&color=000000&bgcolor=ffffff&data=${encodeURIComponent(url2)}`;
+  document.getElementById('qr1').src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&color=000000&bgcolor=ffffff&data=${encodeURIComponent(base+'?room='+bucket+'&mode=1')}`;
+  document.getElementById('qr2').src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&color=000000&bgcolor=ffffff&data=${encodeURIComponent(base+'?room='+bucket+'&mode=2')}`;
   document.getElementById('share-overlay').classList.remove('hidden');
 }
-
 function closeShare() { document.getElementById('share-overlay').classList.add('hidden'); }
 
 // ─── UTILS ────────────────────────────────────
@@ -673,18 +841,19 @@ function show(id) {
   });
 }
 
-// ─── AUDIO UNLOCK (WICHTIG FÜR iPAD) ─────────
+// Audio unlock on first click
 let audioUnlocked = false;
 document.addEventListener('click', () => {
   if (audioUnlocked) return;
-  const clickSound = document.getElementById('snd-click');
-  const bingSound = document.getElementById('snd-bing');
-  if (clickSound) clickSound.play().then(() => clickSound.pause()).catch(()=>{});
-  if (bingSound) bingSound.play().then(() => bingSound.pause()).catch(()=>{});
+  const c = document.getElementById('snd-click');
+  const b = document.getElementById('snd-bing');
+  if (c) c.play().then(() => c.pause()).catch(()=>{});
+  if (b) b.play().then(() => b.pause()).catch(()=>{});
+  try { getAudioCtx(); } catch(_) {}
   audioUnlocked = true;
 });
 
-// ─── AUTO-START (Für QR-Codes) ────────────────
+// Auto-start from QR URL
 (function() {
   const p = new URLSearchParams(location.search);
   const room = p.get('room');
