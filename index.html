@@ -428,10 +428,14 @@ async function push(e, r) {
   needsUpdate = false;
 
   try {
-    // Nutzt Firebase PATCH um beide Werte gleichzeitig zu aktualisieren
+    // Hier wird jetzt auch der Status "custom" mitgesendet!
     await fetch(`${DB_URL}${bucket}.json`, { 
       method: 'PATCH', 
-      body: JSON.stringify({ expr: e, result: r }) 
+      body: JSON.stringify({ 
+        expr: e, 
+        result: r, 
+        custom: isCustomText // Das iPad erfährt so, ob es ein Custom-Text ist
+      }) 
     });
     setDot('live');
   } catch (err) { 
@@ -470,6 +474,9 @@ async function pollDisplay() {
     const data = await res.json();
     
     if (data) {
+      // WICHTIG: Das iPad übernimmt hier die Info vom Handy
+      isCustomText = data.custom || false; 
+      
       const val = dispMode === 1 ? data.expr : data.result;
       const last = dispMode === 1 ? lastExpr : lastResult;
       
@@ -481,6 +488,7 @@ async function pollDisplay() {
       }
     }
   } catch (err) {
+    // ... restlicher Catch-Block
     document.getElementById('disp-status').textContent = 'OFFLINE ○';
     document.getElementById('disp-dot').style.background = '#ff4444';
   } finally {
