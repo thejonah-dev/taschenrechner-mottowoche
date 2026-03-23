@@ -166,7 +166,7 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
   <source src="dragon-studio-typing-keyboard-asmr-356116.mp3" type="audio/mpeg">
 </audio>
 <audio id="snd-bing" preload="auto">
-  <source src="freesound_community-typewriter-bell-100087.mp3" type="audio/mpeg">
+  <source src="freesound_community-piglevelwin2mp3-14800.mp3" type="audio/mpeg">
 </audio>
   
 <!-- ══════════════ SETUP ══════════════ -->
@@ -355,7 +355,16 @@ function startController() {
 }
 
 function p(btn) {
-  if (btn === 'C') { expr = '0'; result = '—'; }
+  // Sound nur abspielen, wenn NICHT 'C' gedrückt wird
+  if (btn !== 'C') {
+    // Da wir hier auf dem Controller sind, senden wir den Befehl an Firebase.
+    // Der Sound wird dann auf dem iPad (Display) ausgelöst, sobald dort die Daten ankommen.
+  }
+
+  if (btn === 'C') { 
+    expr = '0'; 
+    result = '—'; 
+  }
   else if (btn === '⌫') { expr = expr.length > 1 ? expr.slice(0,-1) : '0'; }
   else if (btn === '=') {
     try {
@@ -366,7 +375,6 @@ function p(btn) {
   } else if (btn === '±') {
     expr = expr.startsWith('-') ? expr.slice(1) : (expr!=='0' ? '-'+expr : '0');
   } else if (btn === '%') {
-    // Fix für Prozent: Rechnet die aktuelle Formel aus und teilt durch 100
     try { 
         let e = expr.replace(/÷/g,'/').replace(/×/g,'*').replace(/−/g,'-').replace(/,/g,'.');
         let r = Function('"use strict";return (' + e + ')')() / 100;
@@ -381,7 +389,6 @@ function p(btn) {
   document.getElementById('ctrl-result').textContent = result;
   push(expr, result);
 }
-
 function sendText() {
   const t = document.getElementById('custom-in').value.trim();
   if (!t) return;
@@ -481,23 +488,40 @@ async function pollDisplay() {
 let typingTimer = null;
 
 function manageTypingSound(start) {
-  const typingSound = document.getElementById('snd-click'); // FIX
-
+  const typingSound = document.getElementById('snd-click');
   if (!typingSound) return;
 
   if (start) {
+    // Wenn der Wert "0" ist (nach C), Sound gar nicht erst starten
+    if (lastExpr === '0') {
+        typingSound.pause();
+        typingSound.currentTime = 0;
+        return;
+    }
+
     if (typingSound.paused) {
-      typingSound.currentTime = 0;
       typingSound.play().catch(() => {});
     }
 
+    // Timer: Stoppt den Sound nach 1.5 Sek Inaktivität
     clearTimeout(typingTimer);
     typingTimer = setTimeout(() => {
       typingSound.pause();
-      typingSound.currentTime = 0;
+      // Wir lassen currentTime so, wie sie ist, damit er beim nächsten Mal 
+      // an einer anderen Stelle der Tastatur-Aufnahme weitermacht. 
+      // Wenn er am Ende ist, springt er durch die nächste Zeile automatisch zum Start:
+      if (typingSound.currentTime >= typingSound.duration - 0.1) {
+          typingSound.currentTime = 0;
+      }
     }, 1500);
   }
 }
+
+// Damit der 8-Sekunden Sound von vorne anfängt, wenn er doch mal komplett durchläuft:
+document.getElementById('snd-click').onended = function() {
+    this.currentTime = 0;
+    this.pause();
+};
 
 function playBing() {
   const bingSound = document.getElementById('snd-bing'); // FIX
@@ -510,8 +534,14 @@ function playBing() {
 // UPDATE EINGABE (iPad 1)
 function updateExprDisplay(v) {
   const el = document.getElementById('disp-expr');
-  if (dispMode === 1) { 
-    manageTypingSound(true); // Tastatur-Sound steuern
+  
+  // NUR Sound spielen, wenn nicht gelöscht wurde (v !== '0')
+  if (dispMode === 1 && v !== '0') { 
+    manageTypingSound(true); 
+  } else if (v === '0') {
+    // Wenn '0' kommt (durch C), Sound sofort aus
+    const s = document.getElementById('snd-click');
+    if(s) { s.pause(); s.currentTime = 0; }
   }
 
   el.style.opacity = '0.15';
