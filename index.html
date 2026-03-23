@@ -97,44 +97,46 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 
 /* EXPR screen */
 /* EXPR screen (iPad 1) */
+/* EINGABE (iPad 1) */
 #disp-expr {
   font-family: 'Orbitron', monospace;
   font-weight: 700;
-  font-size: clamp(40px, 10vw, 90px); /* Etwas kleiner, damit mehr Text passt */
   color: var(--green);
   text-align: right;
   text-shadow: 0 0 20px var(--green);
   letter-spacing: 2px;
   
-  /* BOX FIX: Verhindert jegliche Bewegung */
-  height: 1.2em;
-  line-height: 1.2em;
+  /* AUTOMATISCHE SCHRIFTGRÖSSE */
+  font-size: 80px; /* Startgröße */
   display: block;
   width: 100%;
-  overflow: hidden;    /* Schneidet Text ab statt Box zu vergrößern */
-  white-space: nowrap; /* Absolutes Verbot von Zeilensprüngen */
-  word-break: keep-all;
+  height: 1.2em;
+  line-height: 1.2em;
+  white-space: nowrap;
+  overflow: hidden;
+  
+  /* Der Trick: Wenn der Text zu lang ist, wird er gestaucht oder wir nutzen Viewport-Units */
+  font-size: clamp(20px, 8vw, 90px); 
 }
 
-/* RESULT screen (iPad 2) */
+/* ERGEBNIS (iPad 2) */
 #disp-result {
   font-family: 'Orbitron', monospace;
   font-weight: 900;
-  font-size: clamp(48px, 11vw, 100px); /* EXAKT GLEICHE GRÖSSE WIE OBEN */
   color: var(--amber);
-  text-align: left; 
-  padding-left: 20px; 
+  text-align: left;
   text-shadow: 0 0 24px var(--amber);
   letter-spacing: 4px;
+  padding-left: 10px;
 
-  /* EXAKT GLEICHE FESTE ABMESSUNGEN */
-  height: 1.2em;
-  line-height: 1.2em;
+  /* AUTOMATISCHE SCHRIFTGRÖSSE */
+  font-size: clamp(20px, 8vw, 90px);
   display: block;
   width: 100%;
-  overflow: hidden;
+  height: 1.2em;
+  line-height: 1.2em;
   white-space: nowrap;
-  word-break: keep-all;
+  overflow: hidden;
 }
 
 /* Damit die Box drumherum immer gleich groß bleibt */
@@ -291,6 +293,7 @@ let bucket = null;
 let dispMode = 0; // 1 = expr, 2 = result
 let pickMode = 1;
 let expr = '0';
+let isCustomText = false;
 let result = '—';
 let pollTimer = null;
 let lastExpr = '';
@@ -355,6 +358,7 @@ function startController() {
 }
 
 function p(btn) {
+  isCustomText = false;
   // Sound nur abspielen, wenn NICHT 'C' gedrückt wird
   if (btn !== 'C') {
     // Da wir hier auf dem Controller sind, senden wir den Befehl an Firebase.
@@ -393,12 +397,10 @@ function sendText() {
   const t = document.getElementById('custom-in').value.trim();
   if (!t) return;
 
+  isCustomText = true; // SOUNDS DEAKTIVIEREN
+
   let mid = Math.floor(t.length / 2);
-
-  // sucht das nächste Leerzeichen zur Mitte
   let splitIndex = t.indexOf(' ', mid);
-
-  // falls kein Leerzeichen gefunden → fallback
   if (splitIndex === -1) splitIndex = mid;
 
   let part1 = t.substring(0, splitIndex).trim();
@@ -409,10 +411,12 @@ function sendText() {
 
   document.getElementById('ctrl-expr').textContent = part1;
   document.getElementById('ctrl-result').textContent = part2;
-
   document.getElementById('custom-in').value = '';
 
   push(part1, part2);
+  
+  // Nach kurzem Delay wieder für normales Tippen freigeben
+  setTimeout(() => { isCustomText = false; }, 1000);
 }
 
 async function push(e, r) {
@@ -552,15 +556,21 @@ function updateExprDisplay(v) {
 }
 
 // UPDATE ERGEBNIS (iPad 2)
-function updateResultDisplay(v) {
-  const el = document.getElementById('disp-result');
-  if (dispMode === 2) {
-    playBing(); // Einmaliges Bing
+function updateExprDisplay(v) {
+  const el = document.getElementById('disp-expr');
+  
+  // NUR Sound spielen, wenn nicht gelöscht wurde (v !== '0')
+  if (dispMode === 1 && v !== '0') { 
+    manageTypingSound(true); 
+  } else if (v === '0') {
+    // Wenn '0' kommt (durch C), Sound sofort aus
+    const s = document.getElementById('snd-click');
+    if(s) { s.pause(); s.currentTime = 0; }
   }
 
   el.style.opacity = '0.15';
   setTimeout(() => {
-    el.innerHTML = `<span class="eq-prefix">=</span><span id="result-val">${v}</span>`;
+    el.innerHTML = v + '<span class="cursor-blink">_</span>';
     el.style.opacity = '1';
   }, 60);
 }
