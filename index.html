@@ -122,7 +122,8 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
   font-weight: 900;
   font-size: clamp(48px, 11vw, 100px); /* EXAKT GLEICHE GRÖSSE WIE OBEN */
   color: var(--amber);
-  text-align: left; /* Auch rechtsbündig wie die Eingabe für gleiche Optik */
+  text-align: left; 
+  padding-left: 20px; 
   text-shadow: 0 0 24px var(--amber);
   letter-spacing: 4px;
 
@@ -330,16 +331,23 @@ function joinDisplay() {
   bucket = code;
   dispMode = pickMode;
 
-  // VOLLBILD STARTEN (Triggert durch den Button-Klick)
+  // --- AUDIO UNLOCK START ---
+  // Wir spielen die Sounds kurz lautlos an, damit Safari sie später erlaubt
+  const s1 = document.getElementById('snd-click');
+  const s2 = document.getElementById('snd-bing');
+  if(s1) { s1.play().then(() => { s1.pause(); s1.currentTime = 0; }).catch(e => console.log(e)); }
+  if(s2) { s2.play().then(() => { s2.pause(); s2.currentTime = 0; }).catch(e => console.log(e)); }
+  // --- AUDIO UNLOCK ENDE ---
+
+  // VOLLBILD STARTEN
   const el = document.documentElement;
   const rfs = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
   if (rfs) {
-    rfs.call(el).catch(err => console.log("Fullscreen blocked or not supported: ", err));
+    rfs.call(el).catch(err => console.log("Fullscreen blocked: ", err));
   }
 
   startDisplay();
 }
-
 // ─── CONTROLLER ───────────────────────────────
 function startController() {
   show('ctrl');
