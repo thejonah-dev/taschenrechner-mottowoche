@@ -368,6 +368,7 @@ function play67Sound() {
 function stop67Sound() {
   const s = document.getElementById('snd-67');
   if (!s) return;
+  s.onended = null; // ← wichtig
   s.pause();
   s.currentTime = 0;
 }
@@ -383,11 +384,7 @@ function trigger67() {
   pushRaw({ mode67: ts, mode67stop: false });
 
   // Auto-stop after 10s from controller side too
-  clearTimeout(mode67AutoStopTimer);
-  mode67AutoStopTimer = setTimeout(() => {
-    hardStop67();
-  }, 18000);
-}
+
 
 function hardStop67() {
   clearTimeout(mode67AutoStopTimer);
@@ -477,10 +474,9 @@ function startMode67Display() {
   play67Sound();
 
   // Auto-stop on display side after 10.5s (slight buffer)
-  clearTimeout(local67AutoStop);
-  local67AutoStop = setTimeout(() => {
-    stopMode67Display();
-  }, 18500);
+  const s67 = document.getElementById('snd-67');
+if (s67) {
+  s67.onended = () => { stopMode67Display(); };
 }
 
 function stopMode67Display() {
