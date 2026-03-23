@@ -161,7 +161,13 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 </style>
 </head>
 <body>
-
+<audio id="snd-click" preload="auto">
+  <source src="dragon-studio-typing-keyboard-asmr-356116.mp3" type="audio/mpeg">
+</audio>
+<audio id="snd-bing" preload="auto">
+  <source src="freesound_community-typewriter-bell-100087.mp3" type="audio/mpeg">
+</audio>
+  
 <!-- ══════════════ SETUP ══════════════ -->
 <div class="screen" id="setup">
   <div class="logo">📟 TASCHENRECHNER KOSTÜM · v2</div>
@@ -464,8 +470,43 @@ async function pollDisplay() {
   }
 }
 
+let typingTimer = null;
+
+function manageTypingSound(start) {
+  const typingSound = document.getElementById('sound-typing');
+  if (!typingSound) return;
+
+  if (start) {
+    // Wenn der Sound noch nicht läuft, starte ihn
+    if (typingSound.paused) {
+      typingSound.currentTime = 0;
+      typingSound.play().catch(e => console.log("Audio-Interaktion nötig"));
+    }
+    
+    // Timer zurücksetzen: Wenn 1.5 Sekunden keine neue Eingabe kommt, stoppt der Sound
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => {
+      typingSound.pause();
+      typingSound.currentTime = 0;
+    }, 1500); 
+  }
+}
+
+function playBing() {
+  const bingSound = document.getElementById('sound-bing');
+  if (bingSound) {
+    bingSound.currentTime = 0;
+    bingSound.play().catch(e => console.log("Audio-Interaktion nötig"));
+  }
+}
+
+// UPDATE EINGABE (iPad 1)
 function updateExprDisplay(v) {
   const el = document.getElementById('disp-expr');
+  if (dispMode === 1) { 
+    manageTypingSound(true); // Tastatur-Sound steuern
+  }
+
   el.style.opacity = '0.15';
   setTimeout(() => {
     el.innerHTML = v + '<span class="cursor-blink">_</span>';
@@ -473,8 +514,13 @@ function updateExprDisplay(v) {
   }, 60);
 }
 
+// UPDATE ERGEBNIS (iPad 2)
 function updateResultDisplay(v) {
   const el = document.getElementById('disp-result');
+  if (dispMode === 2) {
+    playBing(); // Einmaliges Bing
+  }
+
   el.style.opacity = '0.15';
   setTimeout(() => {
     el.innerHTML = `<span class="eq-prefix">=</span><span id="result-val">${v}</span>`;
