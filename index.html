@@ -133,6 +133,32 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 .cursor-blink { animation: blink 1s step-end infinite; }
 @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.8)} }
 .live-pulse { animation: pulse 1.2s ease-in-out infinite; }
+
+  /* --- LAUFSCHRIFT START --- */
+
+/* Verhindert, dass der Lauftext links und rechts aus dem Kasten ragt */
+.lcd-outer {
+  overflow: hidden !important;
+}
+
+/* Die Laufschrift-Klasse */
+.laufschrift {
+  position: absolute !important;
+  white-space: nowrap !important;
+  width: max-content !important;
+  animation: laufschrift-anim 12s linear infinite !important; /* 12s = Geschwindigkeit */
+  text-align: left !important;
+  top: 50% !important;
+  left: 100% !important; /* Startet rechts außerhalb des Bildschirms */
+  transform: translateY(-50%) !important;
+}
+
+@keyframes laufschrift-anim {
+  0% { left: 100%; transform: translateY(-50%) translateX(0); }
+  100% { left: 0; transform: translateY(-50%) translateX(-100%); } /* Endet links außerhalb des Kastens */
+}
+
+/* --- LAUFSCHRIFT ENDE --- */
 </style>
 </head>
 <body>
@@ -346,11 +372,14 @@ function p(btn) {
 function sendText() {
   const t = document.getElementById('custom-in').value.trim();
   if (!t) return;
-  expr = t; result = t;
+  
+  expr = "TEXT:" + t; 
+  result = "TEXT:" + t;
+  
   document.getElementById('ctrl-expr').textContent = t;
   document.getElementById('ctrl-result').textContent = t;
   document.getElementById('custom-in').value = '';
-  push(t, t);
+  push(expr, result);
 }
 
 async function push(e, r) {
@@ -427,7 +456,14 @@ function updateExprDisplay(v) {
   const el = document.getElementById('disp-expr');
   el.style.opacity = '0.15';
   setTimeout(() => {
-    el.innerHTML = v + '<span class="cursor-blink">_</span>';
+    if (v.startsWith("TEXT:")) {
+      const textOnly = v.substring(5); // Schneidet "TEXT:" weg
+      el.innerHTML = textOnly;
+      el.classList.add('laufschrift');
+    } else {
+      el.innerHTML = v + '<span class="cursor-blink">_</span>';
+      el.classList.remove('laufschrift');
+    }
     el.style.opacity = '1';
   }, 60);
 }
@@ -436,7 +472,14 @@ function updateResultDisplay(v) {
   const el = document.getElementById('disp-result');
   el.style.opacity = '0.15';
   setTimeout(() => {
-    el.innerHTML = `<span class="eq-prefix">=</span><span id="result-val">${v}</span>`;
+    if (v.startsWith("TEXT:")) {
+      const textOnly = v.substring(5);
+      el.innerHTML = `<span class="eq-prefix">=</span>${textOnly}`;
+      el.classList.add('laufschrift');
+    } else {
+      el.innerHTML = `<span class="eq-prefix">=</span><span id="result-val">${v}</span>`;
+      el.classList.remove('laufschrift');
+    }
     el.style.opacity = '1';
   }, 60);
 }
