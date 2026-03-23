@@ -273,19 +273,26 @@ async function createRoom() {
   const loading = document.getElementById('setup-loading');
   btn.disabled = true;
   loading.textContent = 'VERBINDE...';
+
+  // WÄHLE HIER DEINEN EIGENEN CODE (Nur Buchstaben und Zahlen, ca. 8-12 Zeichen)
+  // Beispiel: 'KARNEVAL2024RECHNER'
+  const meinFesterCode = 'RECHNER' + Math.floor(1000 + Math.random() * 9000); 
+
   try {
-    const res = await fetch(`${KV}/`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-    bucket = data.bucket;
+    bucket = meinFesterCode;
+    
+    // Wir erstellen den Raum nicht mehr per POST, sondern schreiben einfach direkt rein
+    // kvdb.io erstellt den Raum automatisch beim ersten PUT
     await Promise.all([
       fetch(`${KV}/${bucket}/expr`, { method: 'PUT', body: '0', headers: { 'Content-Type': 'text/plain' } }),
       fetch(`${KV}/${bucket}/result`, { method: 'PUT', body: '—', headers: { 'Content-Type': 'text/plain' } })
     ]);
+    
     startController();
-  } catch {
+  } catch (err) {
+    console.error(err);
     loading.textContent = '';
-    document.getElementById('setup-error').textContent = 'FEHLER – Netz prüfen';
+    document.getElementById('setup-error').textContent = 'FEHLER – KVDB Limit oder Netz';
     btn.disabled = false;
   }
 }
