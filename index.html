@@ -719,10 +719,10 @@ function updateResultDisplay(v) {
   el.innerHTML = `<span class="eq-prefix">=</span><span id="result-val">${v}</span>`;
 }
 
-// ─── IDLE MATRIX ──────────────────────────────
+// ─── IDLE MATRIX ───
 let matrixInterval = null;
-const canvas = document.getElementById('matrix-canvas');
-const ctx = canvas ? canvas.getContext('2d') : null;
+const matrixCanvas = document.getElementById('matrix-canvas'); // Variable umbenannt!
+const matrixCtx = matrixCanvas ? matrixCanvas.getContext('2d') : null; // Variable umbenannt!
 
 function resetIdle() {
   idleActive = false;
@@ -732,27 +732,28 @@ function resetIdle() {
 }
 
 function startMatrix() {
-  if (idleActive || mode67Active) return;
+  if (idleActive || mode67Active || !matrixCanvas) return;
   idleActive = true;
-  canvas.style.opacity = "0.6";
+  matrixCanvas.style.opacity = "0.6";
   document.getElementById('disp-expr').style.opacity = "0";
   document.getElementById('disp-result').style.opacity = "0";
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
+  matrixCanvas.width = matrixCanvas.offsetWidth;
+  matrixCanvas.height = matrixCanvas.offsetHeight;
   const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$+-*/=%";
   const fontSize = 16;
-  const columns = canvas.width / fontSize;
+  const columns = matrixCanvas.width / fontSize;
   const drops = [];
   for (let x = 0; x < columns; x++) drops[x] = 1;
+
   function draw() {
     if (!idleActive) return;
-    ctx.fillStyle = "rgba(6, 16, 6, 0.1)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = dispMode === 2 ? "#ffb830" : "#39ff5a";
-    ctx.font = fontSize + "px 'Share Tech Mono'";
+    matrixCtx.fillStyle = "rgba(6, 16, 6, 0.1)";
+    matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+    matrixCtx.fillStyle = dispMode === 2 ? "#ffb830" : "#39ff5a";
+    matrixCtx.font = fontSize + "px 'Share Tech Mono'";
     for (let i = 0; i < drops.length; i++) {
-      ctx.fillText(chars.charAt(Math.floor(Math.random() * chars.length)), i * fontSize, drops[i] * fontSize);
-      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      matrixCtx.fillText(chars.charAt(Math.floor(Math.random() * chars.length)), i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) drops[i] = 0;
       drops[i]++;
     }
   }
@@ -761,12 +762,12 @@ function startMatrix() {
 
 function stopMatrix() {
   clearInterval(matrixInterval);
-  if (canvas) canvas.style.opacity = "0";
+  if (matrixCanvas) matrixCanvas.style.opacity = "0";
   const exprEl = document.getElementById('disp-expr');
-  const resEl  = document.getElementById('disp-result');
+  const resEl = document.getElementById('disp-result');
   if (exprEl) exprEl.style.opacity = "1";
-  if (resEl)  resEl.style.opacity  = "1";
-  if(ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (resEl) resEl.style.opacity = "1";
+  if (matrixCtx) matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
 }
 
 // ─── SHARE ────────────────────────────────────
