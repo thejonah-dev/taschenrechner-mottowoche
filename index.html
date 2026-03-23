@@ -389,7 +389,7 @@ function trigger67() {
   const startAt   = ts + 2000; // beide iPads starten in genau 2 Sek
   mode67Active    = true;
   document.getElementById('btn-67').classList.add('firing');
-  pushData({ mode67: ts, mode67stop: false, mode67startAt: startAt });
+  pushRaw({ mode67: ts, mode67stop: false, mode67startAt: startAt });
 }
 
 function hardStop67() {
