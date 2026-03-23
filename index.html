@@ -26,6 +26,8 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 
 .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; transition: opacity 0.3s; }
 .screen.hidden { opacity: 0; pointer-events: none; }
+  /* Verhindert, dass EINGABE und ERGEBNIS gleichzeitig angezeigt werden */
+#disp-expr.hidden, #disp-result.hidden { display: none !important; }
 
 /* ─── SETUP ─── */
 #setup { gap: 14px; }
@@ -296,6 +298,14 @@ function joinDisplay() {
   if (code.length < 3) { document.getElementById('setup-error').textContent = 'Code zu kurz'; return; }
   bucket = code;
   dispMode = pickMode;
+
+  // VOLLBILD STARTEN (Triggert durch den Button-Klick)
+  const el = document.documentElement;
+  const rfs = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+  if (rfs) {
+    rfs.call(el).catch(err => console.log("Fullscreen blocked or not supported: ", err));
+  }
+
   startDisplay();
 }
 
