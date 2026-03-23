@@ -100,19 +100,19 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 #disp-expr {
   font-family: 'Orbitron', monospace;
   font-weight: 700;
-  font-size: clamp(48px, 11vw, 100px); /* Maximale Größe etwas begrenzt für Stabilität */
+  font-size: clamp(40px, 10vw, 90px); /* Etwas kleiner, damit mehr Text passt */
   color: var(--green);
   text-align: right;
   text-shadow: 0 0 20px var(--green);
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   
-  /* FESTE ABMESSUNGEN - ÄNDERT SICH NIE */
-  height: 1.2em; 
+  /* BOX FIX: Verhindert jegliche Bewegung */
+  height: 1.2em;
   line-height: 1.2em;
   display: block;
   width: 100%;
-  overflow: hidden;    /* Schneidet Text ab, statt Box zu vergrößern */
-  white-space: nowrap; /* Verhindert Zeilenumbruch nach unten */
+  overflow: hidden;    /* Schneidet Text ab statt Box zu vergrößern */
+  white-space: nowrap; /* Absolutes Verbot von Zeilensprüngen */
   word-break: keep-all;
 }
 
@@ -371,11 +371,35 @@ function p(btn) {
 function sendText() {
   const t = document.getElementById('custom-in').value.trim();
   if (!t) return;
-  expr = t; result = t;
-  document.getElementById('ctrl-expr').textContent = t;
-  document.getElementById('ctrl-result').textContent = t;
+  
+  let part1, part2;
+  
+  // Sucht nach dem letzten Leerzeichen vor der Mitte des Wortes
+  if (t.includes(' ')) {
+    let words = t.split(' ');
+    let middle = Math.ceil(words.length / 2);
+    part1 = words.slice(0, middle).join(' ');
+    part2 = words.slice(middle).join(' ');
+  } else {
+    // Wenn es nur ein langes Wort ist, wird es in der Mitte geteilt
+    let mid = Math.ceil(t.length / 2);
+    part1 = t.substring(0, mid);
+    part2 = t.substring(mid);
+  }
+
+  // Update der Variablen
+  expr = part1; 
+  result = part2;
+
+  // Anzeige auf der Fernbedienung aktualisieren
+  document.getElementById('ctrl-expr').textContent = part1;
+  document.getElementById('ctrl-result').textContent = part2;
+  
+  // Eingabefeld leeren
   document.getElementById('custom-in').value = '';
-  push(t, t);
+  
+  // Daten an Firebase/KVDB senden
+  push(part1, part2);
 }
 
 async function push(e, r) {
