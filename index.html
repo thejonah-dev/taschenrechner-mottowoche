@@ -261,6 +261,15 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
     🔔 BLING: AN
   </button>
 </div>
+
+<div class="mode67-row" style="margin-bottom:6px;">
+  <button id="btn-pin" onclick="togglePin()"
+    style="width:100%;background:var(--btn);border:1px solid var(--btn-border);
+    color:var(--green-dim);font-family:'Orbitron',monospace;font-size:10px;
+    letter-spacing:2px;padding:10px;border-radius:7px;cursor:pointer;">
+    📌 PINNEN: AUS
+  </button>
+</div>
   
   <div class="calc-grid">
     <button class="c-btn fn" onclick="p('C')">C</button>
@@ -351,6 +360,7 @@ let needsUpdate = false;
 let idleTimer = null;
 let idleActive = false;
 let bingMuted = false;
+let displayPinned = false;
 
 // 67 mode state
 let mode67Active = false;
@@ -669,6 +679,14 @@ async function pollDisplay() {
     btn.style.color = bingMuted ? 'var(--red-fn)' : 'var(--green-dim)';
   }
 
+  displayPinned = data.displayPinned || false;
+const btnPin = document.getElementById('btn-pin');
+if (btnPin) {
+  btnPin.textContent = displayPinned ? '📌 PINNEN: AN' : '📌 PINNEN: AUS';
+  btnPin.style.color = displayPinned ? 'var(--green)' : 'var(--green-dim)';
+  btnPin.style.borderColor = displayPinned ? 'var(--green)' : 'var(--btn-border)';
+}
+
   // ... rest bleibt gleich
       // ── 67 MODE check ──
      handle67StateChange(data.mode67 || 0, data.mode67stop || false, data.mode67startAt || 0);
@@ -731,6 +749,15 @@ function updateResultDisplay(v) {
   el.innerHTML = `<span class="eq-prefix">=</span><span id="result-val">${v}</span>`;
 }
 
+function togglePin() {
+  displayPinned = !displayPinned;
+  const btn = document.getElementById('btn-pin');
+  btn.textContent = displayPinned ? '📌 PINNEN: AN' : '📌 PINNEN: AUS';
+  btn.style.color = displayPinned ? 'var(--green)' : 'var(--green-dim)';
+  btn.style.borderColor = displayPinned ? 'var(--green)' : 'var(--btn-border)';
+  pushRaw({ displayPinned });
+}
+
 function toggleBingMute() {
   bingMuted = !bingMuted;
   const btn = document.getElementById('btn-bingmute');
@@ -745,6 +772,7 @@ const matrixCanvas = document.getElementById('matrix-canvas'); // Variable umben
 const matrixCtx = matrixCanvas ? matrixCanvas.getContext('2d') : null; // Variable umbenannt!
 
 function resetIdle() {
+  if (displayPinned) return; // ← NEU: kein Matrix wenn gepinnt
   idleActive = false;
   clearTimeout(idleTimer);
   stopMatrix();
