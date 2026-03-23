@@ -300,6 +300,8 @@ let lastExpr = '';
 let lastResult = '';
 let isBusy = false;
 let needsUpdate = false;
+let idleTimer = null;
+let idleActive = false;
 
 // ─── SETUP ────────────────────────────────────
 function pickDisp(n) {
@@ -546,6 +548,8 @@ function playBing() {
 // UPDATE EINGABE (iPad 1)
 // UPDATE EINGABE (iPad 1)
 function updateExprDisplay(v) {
+  resetIdle();
+  idleActive = false;
   const el = document.getElementById('disp-expr');
   
   // Nur Sound wenn: iPad 1 UND kein Custom Text UND nicht gelöscht
@@ -563,6 +567,8 @@ function updateExprDisplay(v) {
 
 // UPDATE ERGEBNIS (iPad 2)
 function updateResultDisplay(v) {
+  resetIdle();
+  idleActive = false;
   const el = document.getElementById('disp-result');
   
   // Nur Sound wenn: iPad 2 UND kein Custom Text UND nicht gelöscht
@@ -572,6 +578,41 @@ function updateResultDisplay(v) {
 
   // Text anzeigen... (wie bisher)
   el.innerHTML = `<span class="eq-prefix">=</span><span id="result-val">${v}</span>`;
+}
+
+function resetIdle() {
+  idleActive = false;
+  clearTimeout(idleTimer);
+
+  idleTimer = setTimeout(() => {
+    startIdleFace();
+  }, 5000); // 5 Sekunden
+}
+
+function startIdleFace() {
+  idleActive = true;
+
+  const el = dispMode === 1
+    ? document.getElementById('disp-expr')
+    : document.getElementById('disp-result');
+
+  let open = '•_•';
+  let wink = '•_◡';
+
+  function loop() {
+    if (!idleActive) return;
+
+    el.innerHTML = open;
+
+    setTimeout(() => {
+      if (!idleActive) return;
+      el.innerHTML = wink;
+    }, 200);
+
+    setTimeout(loop, 3000); // alle 3 Sekunden zwinkern
+  }
+
+  loop();
 }
 
 // ─── SHARE ────────────────────────────────────
