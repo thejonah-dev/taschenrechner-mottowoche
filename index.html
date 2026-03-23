@@ -602,14 +602,24 @@ function startIdleFace() {
   function loop() {
     if (!idleActive) return;
 
-    el.innerHTML = open;
+    // Unterschied zwischen Eingabe & Ergebnis beachten
+    if (dispMode === 1) {
+      el.innerHTML = open; // kein Cursor im Idle
+    } else {
+      el.innerHTML = `<span class="eq-prefix">=</span>${open}`;
+    }
 
     setTimeout(() => {
       if (!idleActive) return;
-      el.innerHTML = wink;
+
+      if (dispMode === 1) {
+        el.innerHTML = wink;
+      } else {
+        el.innerHTML = `<span class="eq-prefix">=</span>${wink}`;
+      }
     }, 200);
 
-    setTimeout(loop, 3000); // alle 3 Sekunden zwinkern
+    setTimeout(loop, 3000);
   }
 
   loop();
