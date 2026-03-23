@@ -624,7 +624,7 @@ function startMatrix() {
     ctx.fillStyle = "rgba(6, 16, 6, 0.1)";  
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = "#39ff5a"; 
+    ctx.fillStyle = (dispMode === 2) ? "#ffb830" : "#39ff5a";
     ctx.font = fontSize + "px 'Share Tech Mono'";
 
     for (let i = 0; i < drops.length; i++) {
@@ -695,3 +695,6 @@ document.addEventListener('click', () => {
     startDisplay();
   }
 })();
+</script>
+</body>
+</html>
