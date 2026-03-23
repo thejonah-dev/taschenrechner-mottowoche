@@ -250,7 +250,9 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 
 
 <script>
-const KV = 'https://kvdb.io';
+// HIER DEINEN LINK EINFÜGEN (muss mit .json enden!)
+const DB_URL = "https://taschenrechner-mottowoche-default-rtdb.europe-west1.firebasedatabase.app/";
+
 let bucket = null;
 let dispMode = 0; // 1 = expr, 2 = result
 let pickMode = 1;
@@ -260,6 +262,7 @@ let pollTimer = null;
 let lastExpr = '';
 let lastResult = '';
 let isBusy = false;
+let needsUpdate = false;
 
 // ─── SETUP ────────────────────────────────────
 function pickDisp(n) {
@@ -273,33 +276,24 @@ async function createRoom() {
   const loading = document.getElementById('setup-loading');
   btn.disabled = true;
   loading.textContent = 'VERBINDE...';
-
-  // WÄHLE HIER DEINEN EIGENEN CODE (Nur Buchstaben und Zahlen, ca. 8-12 Zeichen)
-  // Beispiel: 'KARNEVAL2024RECHNER'
-  const meinFesterCode = 'RECHNER' + Math.floor(1000 + Math.random() * 9000); 
-
+  
+  // Erzeugt einen zufälligen Raum-Code wie R1234
+  bucket = 'R' + Math.floor(1000 + Math.random() * 9000);
+  
   try {
-    bucket = meinFesterCode;
-    
-    // Wir erstellen den Raum nicht mehr per POST, sondern schreiben einfach direkt rein
-    // kvdb.io erstellt den Raum automatisch beim ersten PUT
-    await Promise.all([
-      fetch(`${KV}/${bucket}/expr`, { method: 'PUT', body: '0', headers: { 'Content-Type': 'text/plain' } }),
-      fetch(`${KV}/${bucket}/result`, { method: 'PUT', body: '—', headers: { 'Content-Type': 'text/plain' } })
-    ]);
-    
+    // Initialen Wert in Firebase speichern
+    await push('0', '—');
     startController();
   } catch (err) {
-    console.error(err);
     loading.textContent = '';
-    document.getElementById('setup-error').textContent = 'FEHLER – KVDB Limit oder Netz';
+    document.getElementById('setup-error').textContent = 'FEHLER - Firebase Link prüfen!';
     btn.disabled = false;
   }
 }
 
 function joinDisplay() {
   const code = document.getElementById('code-input').value.trim();
-  if (code.length < 6) { document.getElementById('setup-error').textContent = 'Code unvollständig'; return; }
+  if (code.length < 3) { document.getElementById('setup-error').textContent = 'Code zu kurz'; return; }
   bucket = code;
   dispMode = pickMode;
   startDisplay();
@@ -323,7 +317,13 @@ function p(btn) {
   } else if (btn === '±') {
     expr = expr.startsWith('-') ? expr.slice(1) : (expr!=='0' ? '-'+expr : '0');
   } else if (btn === '%') {
-    try { expr = String(parseFloat(expr.replace(',','.'))/100); } catch {}
+    // Fix für Prozent: Rechnet die aktuelle Formel aus und teilt durch 100
+    try { 
+        let e = expr.replace(/÷/g,'/').replace(/×/g,'*').replace(/−/g,'-').replace(/,/g,'.');
+        let r = Function('"use strict";return (' + e + ')')() / 100;
+        expr = String(r).replace('.',',');
+        p('=');
+    } catch { result = 'ERROR'; }
   } else {
     if (expr === '0' && /\d/.test(btn)) expr = btn;
     else expr += btn;
@@ -344,16 +344,27 @@ function sendText() {
 }
 
 async function push(e, r) {
-  if (!bucket || isBusy) return;
+  if (isBusy) {
+    needsUpdate = true;
+    return;
+  }
   isBusy = true;
+  needsUpdate = false;
+
   try {
-    await Promise.all([
-      fetch(`${KV}/${bucket}/expr`, { method:'PUT', body: encodeURIComponent(e), headers:{'Content-Type':'text/plain'} }),
-      fetch(`${KV}/${bucket}/result`, { method:'PUT', body: encodeURIComponent(r), headers:{'Content-Type':'text/plain'} })
-    ]);
+    // Nutzt Firebase PATCH um beide Werte gleichzeitig zu aktualisieren
+    await fetch(`${DB_URL}${bucket}.json`, { 
+      method: 'PATCH', 
+      body: JSON.stringify({ expr: e, result: r }) 
+    });
     setDot('live');
-  } catch { setDot('err'); }
-  isBusy = false;
+  } catch (err) { 
+    setDot('err'); 
+    console.error("Firebase Error:", err);
+  } finally {
+    isBusy = false;
+    if (needsUpdate) push(expr, result);
+  }
 }
 
 function setDot(s) {
@@ -372,31 +383,33 @@ function startDisplay() {
   document.getElementById('disp-brand').textContent = isResult
     ? 'CASIO · fx-9750GIII · ERGEBNIS'
     : 'CASIO · fx-9750GIII · EINGABE';
-  document.getElementById('lcd-sub').textContent = isResult
-    ? '▶ ANS  STO  RCL' : '▶ COMP  RAD  CMPLX';
-  document.getElementById('disp-footer-label').textContent = isResult ? '= ERGEBNIS' : 'EINGABE ▶';
-  pollTimer = setInterval(pollDisplay, 700);
-  pollDisplay();
+  
+  pollDisplay(); // Startet die Abfrage-Schleife
 }
 
 async function pollDisplay() {
   if (!bucket) return;
-  const key = dispMode === 1 ? 'expr' : 'result';
-  const last = dispMode === 1 ? lastExpr : lastResult;
   try {
-    const res = await fetch(`${KV}/${bucket}/${key}`);
-    if (!res.ok) return;
-    const raw = await res.text();
-    const text = decodeURIComponent(raw.trim());
-    if (text && text !== last) {
-      if (dispMode === 1) { lastExpr = text; updateExprDisplay(text); }
-      else { lastResult = text; updateResultDisplay(text); }
-      document.getElementById('disp-status').textContent = 'LIVE ●';
-      document.getElementById('disp-dot').style.background = 'var(--green)';
+    const res = await fetch(`${DB_URL}${bucket}.json`);
+    const data = await res.json();
+    
+    if (data) {
+      const val = dispMode === 1 ? data.expr : data.result;
+      const last = dispMode === 1 ? lastExpr : lastResult;
+      
+      if (val !== undefined && val !== last) {
+        if (dispMode === 1) { lastExpr = val; updateExprDisplay(val); }
+        else { lastResult = val; updateResultDisplay(val); }
+        document.getElementById('disp-status').textContent = 'LIVE ●';
+        document.getElementById('disp-dot').style.background = 'var(--green)';
+      }
     }
-  } catch {
+  } catch (err) {
     document.getElementById('disp-status').textContent = 'OFFLINE ○';
     document.getElementById('disp-dot').style.background = '#ff4444';
+  } finally {
+    // Wartet 500ms und fragt dann erneut ab (verhindert Race Conditions)
+    pollTimer = setTimeout(pollDisplay, 500);
   }
 }
 
@@ -438,7 +451,7 @@ function show(id) {
   });
 }
 
-// ─── AUTO-START ───────────────────────────────
+// ─── AUTO-START (Für QR-Codes) ────────────────
 (function() {
   const p = new URLSearchParams(location.search);
   const room = p.get('room');
