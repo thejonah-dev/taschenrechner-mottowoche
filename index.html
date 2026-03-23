@@ -473,30 +473,29 @@ async function pollDisplay() {
 let typingTimer = null;
 
 function manageTypingSound(start) {
-  const typingSound = document.getElementById('sound-typing');
+  const typingSound = document.getElementById('snd-click'); // FIX
+
   if (!typingSound) return;
 
   if (start) {
-    // Wenn der Sound noch nicht läuft, starte ihn
     if (typingSound.paused) {
       typingSound.currentTime = 0;
-      typingSound.play().catch(e => console.log("Audio-Interaktion nötig"));
+      typingSound.play().catch(() => {});
     }
-    
-    // Timer zurücksetzen: Wenn 1.5 Sekunden keine neue Eingabe kommt, stoppt der Sound
+
     clearTimeout(typingTimer);
     typingTimer = setTimeout(() => {
       typingSound.pause();
       typingSound.currentTime = 0;
-    }, 1500); 
+    }, 1500);
   }
 }
 
 function playBing() {
-  const bingSound = document.getElementById('sound-bing');
+  const bingSound = document.getElementById('snd-bing'); // FIX
   if (bingSound) {
     bingSound.currentTime = 0;
-    bingSound.play().catch(e => console.log("Audio-Interaktion nötig"));
+    bingSound.play().catch(() => {});
   }
 }
 
@@ -547,6 +546,21 @@ function show(id) {
     document.getElementById(s).classList.toggle('hidden', s !== id);
   });
 }
+
+  // ─── AUDIO UNLOCK (WICHTIG FÜR iPAD) ─────────
+let audioUnlocked = false;
+
+document.addEventListener('click', () => {
+  if (audioUnlocked) return;
+
+  const clickSound = document.getElementById('snd-click');
+  const bingSound = document.getElementById('snd-bing');
+
+  if (clickSound) clickSound.play().then(() => clickSound.pause()).catch(()=>{});
+  if (bingSound) bingSound.play().then(() => bingSound.pause()).catch(()=>{});
+
+  audioUnlocked = true;
+});
 
 // ─── AUTO-START (Für QR-Codes) ────────────────
 (function() {
