@@ -198,6 +198,9 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
 <audio id="snd-bing" preload="auto">
   <source src="freesound_community-piglevelwin2mp3-14800.mp3" type="audio/mpeg">
 </audio>
+  <audio id="snd-67" preload="auto">
+  <source src="2026-03-23 19-53-51.mp3" type="audio/mpeg">
+</audio>
 
 <!-- ══════════════ SETUP ══════════════ -->
 <div class="screen" id="setup">
@@ -356,74 +359,17 @@ function getAudioCtx() {
 
 // Generates the 10-second 67 alarm sound
 function play67Sound() {
-  const ctx = getAudioCtx();
-  stop67Sound(); // clean up any previous
-
-  const duration = 10;
-  const now = ctx.currentTime;
-
-  // Layer 1: low pulsing drone
-  const osc1 = ctx.createOscillator();
-  const gain1 = ctx.createGain();
-  osc1.type = 'sawtooth';
-  osc1.frequency.setValueAtTime(67, now);
-  osc1.frequency.linearRampToValueAtTime(134, now + 5);
-  osc1.frequency.linearRampToValueAtTime(67, now + 10);
-  gain1.gain.setValueAtTime(0, now);
-  gain1.gain.linearRampToValueAtTime(0.18, now + 0.3);
-  gain1.gain.linearRampToValueAtTime(0.18, now + duration - 0.5);
-  gain1.gain.linearRampToValueAtTime(0, now + duration);
-  osc1.connect(gain1);
-  gain1.connect(ctx.destination);
-  osc1.start(now);
-  osc1.stop(now + duration);
-
-  // Layer 2: pulsing beep at 670 Hz (6 7 = 670!)
-  for (let i = 0; i < 20; i++) {
-    const t = now + i * 0.5;
-    if (t > now + duration) break;
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = 'square';
-    o.frequency.value = 670;
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.12, t + 0.04);
-    g.gain.linearRampToValueAtTime(0, t + 0.18);
-    o.connect(g);
-    g.connect(ctx.destination);
-    o.start(t);
-    o.stop(t + 0.2);
-    mode67AudioNodes.push(o, g);
-  }
-
-  // Layer 3: rising alarm sweep every 2 seconds
-  for (let i = 0; i < 5; i++) {
-    const t = now + i * 2;
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = 'sine';
-    o.frequency.setValueAtTime(300, t);
-    o.frequency.linearRampToValueAtTime(1200, t + 1.5);
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.1, t + 0.2);
-    g.gain.linearRampToValueAtTime(0, t + 1.5);
-    o.connect(g);
-    g.connect(ctx.destination);
-    o.start(t);
-    o.stop(t + 1.5);
-    mode67AudioNodes.push(o, g);
-  }
-
-  mode67AudioNodes.push(osc1, gain1);
+  const s = document.getElementById('snd-67');
+  if (!s) return;
+  s.currentTime = 0;
+  s.play().catch(() => {});
 }
 
 function stop67Sound() {
-  const ctx = getAudioCtx();
-  mode67AudioNodes.forEach(n => {
-    try { n.stop(); } catch(_) {}
-    try { n.disconnect(); } catch(_) {}
-  });
-  mode67AudioNodes = [];
+  const s = document.getElementById('snd-67');
+  if (!s) return;
+  s.pause();
+  s.currentTime = 0;
 }
 
 // ─── 67 MODE: CONTROLLER ───────────────────────
@@ -440,7 +386,7 @@ function trigger67() {
   clearTimeout(mode67AutoStopTimer);
   mode67AutoStopTimer = setTimeout(() => {
     hardStop67();
-  }, 10000);
+  }, 16000);
 }
 
 function hardStop67() {
@@ -534,7 +480,7 @@ function startMode67Display() {
   clearTimeout(local67AutoStop);
   local67AutoStop = setTimeout(() => {
     stopMode67Display();
-  }, 10500);
+  }, 16500);
 }
 
 function stopMode67Display() {
@@ -847,8 +793,10 @@ document.addEventListener('click', () => {
   if (audioUnlocked) return;
   const c = document.getElementById('snd-click');
   const b = document.getElementById('snd-bing');
+  const s67 = document.getElementById('snd-67'); // ← NEU
   if (c) c.play().then(() => c.pause()).catch(()=>{});
   if (b) b.play().then(() => b.pause()).catch(()=>{});
+  if (s67) s67.play().then(() => s67.pause()).catch(()=>{}); // ← NEU
   try { getAudioCtx(); } catch(_) {}
   audioUnlocked = true;
 });
