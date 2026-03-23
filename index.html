@@ -536,43 +536,34 @@ function playBing() {
 }
 
 // UPDATE EINGABE (iPad 1)
+// UPDATE EINGABE (iPad 1)
 function updateExprDisplay(v) {
   const el = document.getElementById('disp-expr');
   
-  // NUR Sound spielen, wenn nicht gelöscht wurde (v !== '0')
-  if (dispMode === 1 && v !== '0') { 
+  // Nur Sound wenn: iPad 1 UND kein Custom Text UND nicht gelöscht
+  if (dispMode === 1 && !isCustomText && v !== '0') { 
     manageTypingSound(true); 
-  } else if (v === '0') {
-    // Wenn '0' kommt (durch C), Sound sofort aus
+  } else if (v === '0' || isCustomText) {
     const s = document.getElementById('snd-click');
     if(s) { s.pause(); s.currentTime = 0; }
   }
 
-  el.style.opacity = '0.15';
-  setTimeout(() => {
-    el.innerHTML = v + '<span class="cursor-blink">_</span>';
-    el.style.opacity = '1';
-  }, 60);
+  // Text anzeigen... (wie bisher)
+  el.style.opacity = '1';
+  el.innerHTML = v + '<span class="cursor-blink">_</span>';
 }
 
 // UPDATE ERGEBNIS (iPad 2)
-function updateExprDisplay(v) {
-  const el = document.getElementById('disp-expr');
+function updateResultDisplay(v) {
+  const el = document.getElementById('disp-result');
   
-  // NUR Sound spielen, wenn nicht gelöscht wurde (v !== '0')
-  if (dispMode === 1 && v !== '0') { 
-    manageTypingSound(true); 
-  } else if (v === '0') {
-    // Wenn '0' kommt (durch C), Sound sofort aus
-    const s = document.getElementById('snd-click');
-    if(s) { s.pause(); s.currentTime = 0; }
+  // Nur Sound wenn: iPad 2 UND kein Custom Text UND nicht gelöscht
+  if (dispMode === 2 && !isCustomText && v !== '—') {
+    playBing(); 
   }
 
-  el.style.opacity = '0.15';
-  setTimeout(() => {
-    el.innerHTML = v + '<span class="cursor-blink">_</span>';
-    el.style.opacity = '1';
-  }, 60);
+  // Text anzeigen... (wie bisher)
+  el.innerHTML = `<span class="eq-prefix">=</span><span id="result-val">${v}</span>`;
 }
 
 // ─── SHARE ────────────────────────────────────
