@@ -371,34 +371,26 @@ function p(btn) {
 function sendText() {
   const t = document.getElementById('custom-in').value.trim();
   if (!t) return;
-  
-  let part1, part2;
-  
-  // Sucht nach dem letzten Leerzeichen vor der Mitte des Wortes
-  if (t.includes(' ')) {
-    let words = t.split(' ');
-    let middle = Math.ceil(words.length / 2);
-    part1 = words.slice(0, middle).join(' ');
-    part2 = words.slice(middle).join(' ');
-  } else {
-    // Wenn es nur ein langes Wort ist, wird es in der Mitte geteilt
-    let mid = Math.ceil(t.length / 2);
-    part1 = t.substring(0, mid);
-    part2 = t.substring(mid);
-  }
 
-  // Update der Variablen
-  expr = part1; 
+  let mid = Math.floor(t.length / 2);
+
+  // sucht das nächste Leerzeichen zur Mitte
+  let splitIndex = t.indexOf(' ', mid);
+
+  // falls kein Leerzeichen gefunden → fallback
+  if (splitIndex === -1) splitIndex = mid;
+
+  let part1 = t.substring(0, splitIndex).trim();
+  let part2 = t.substring(splitIndex).trim();
+
+  expr = part1;
   result = part2;
 
-  // Anzeige auf der Fernbedienung aktualisieren
   document.getElementById('ctrl-expr').textContent = part1;
   document.getElementById('ctrl-result').textContent = part2;
-  
-  // Eingabefeld leeren
+
   document.getElementById('custom-in').value = '';
-  
-  // Daten an Firebase/KVDB senden
+
   push(part1, part2);
 }
 
