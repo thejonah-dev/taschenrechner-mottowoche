@@ -253,6 +253,15 @@ body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono
     <button class="btn-hardstop" id="btn-hardstop" onclick="hardStop67()">⛔ STOP</button>
   </div>
 
+  <div class="mode67-row" style="margin-bottom:6px;">
+  <button id="btn-bingmute" onclick="toggleBingMute()"
+    style="width:100%;background:var(--btn);border:1px solid var(--btn-border);
+    color:var(--green-dim);font-family:'Orbitron',monospace;font-size:10px;
+    letter-spacing:2px;padding:10px;border-radius:7px;cursor:pointer;">
+    🔔 BLING: AN
+  </button>
+</div>
+  
   <div class="calc-grid">
     <button class="c-btn fn" onclick="p('C')">C</button>
     <button class="c-btn fn" onclick="p('⌫')">⌫</button>
@@ -341,6 +350,7 @@ let isBusy = false;
 let needsUpdate = false;
 let idleTimer = null;
 let idleActive = false;
+let bingMuted = false;
 
 // 67 mode state
 let mode67Active = false;
@@ -649,8 +659,17 @@ async function pollDisplay() {
     const res = await fetch(`${DB_URL}${bucket}.json`);
     const data = await res.json();
     if (data) {
-      isCustomText = data.custom || false;
+  isCustomText = data.custom || false;
 
+  // ← HIER, außerhalb aller if-Blöcke:
+  bingMuted = data.bingMuted || false;
+  const btn = document.getElementById('btn-bingmute');
+  if (btn) {
+    btn.textContent = bingMuted ? '🔕 BLING: AUS' : '🔔 BLING: AN';
+    btn.style.color = bingMuted ? 'var(--red-fn)' : 'var(--green-dim)';
+  }
+
+  // ... rest bleibt gleich
       // ── 67 MODE check ──
      handle67StateChange(data.mode67 || 0, data.mode67stop || false, data.mode67startAt || 0);
 
@@ -691,8 +710,9 @@ function manageTypingSound(start) {
 document.getElementById('snd-click').onended = function() { this.currentTime = 0; this.pause(); };
 
 function playBing() {
+  if (bingMuted) return; // ← NEU
   const s = document.getElementById('snd-bing');
-  if (s) { s.currentTime = 0; s.play().catch(()=>{}); }
+  if (s) { s.currentTime = 0; s.play().catch(() => {}); }
 }
 
 function updateExprDisplay(v) {
@@ -709,6 +729,14 @@ function updateResultDisplay(v) {
   const el = document.getElementById('disp-result');
   if (dispMode === 2 && !isCustomText && v !== '—') playBing();
   el.innerHTML = `<span class="eq-prefix">=</span><span id="result-val">${v}</span>`;
+}
+
+function toggleBingMute() {
+  bingMuted = !bingMuted;
+  const btn = document.getElementById('btn-bingmute');
+  btn.textContent = bingMuted ? '🔕 BLING: AUS' : '🔔 BLING: AN';
+  btn.style.color = bingMuted ? 'var(--red-fn)' : 'var(--green-dim)';
+  pushRaw({ bingMuted });
 }
 
 // ─── IDLE MATRIX ───
